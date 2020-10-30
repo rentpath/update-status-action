@@ -1,0 +1,41 @@
+name: 'Update Github Status'
+description: 'Updates a status via the Github Statuses API'
+inputs:
+  context:
+    description: A string label to differentiate this status from the status of other systems.
+    required: true
+  description:
+    description: A short description of the status.
+    required: false
+  sha:
+    description: The SHA to associate with the status.
+    required: true
+    default: ${{ github.sha }}
+  state:
+    description: The state of the system.
+    required: true
+    default: 'pending'
+  target_url:
+    description: The target URL to associate with this status.
+    required: false
+  token:
+    description: "A personal access token to override Github's default token"
+    required: false
+    default: ${{ github.token }}
+
+runs:
+  using: "composite"
+  steps:
+    - name: update status
+      shell: bash
+      run: |
+        curl -H "Authorization: bearer ${{ inputs.token }}" \
+        -H "Accept: ${{ inputs.headers }}" \
+        "https://api.github.com/repos/${{ github.repository }}/statuses/${{ inputs.sha }}" --data-binary @- << EOF
+        {
+            "state": "${{ inputs.state }}",
+            "target_url": "${{ inputs.target_url }}",
+            "description": "${{ inputs.description }}",
+            "context": "${{ inputs.context }}"
+        }
+        EOF
