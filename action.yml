@@ -29,13 +29,15 @@ runs:
     - name: update status
       shell: bash
       run: |
-        curl -H "Authorization: bearer ${{ inputs.token }}" \
-        -H "Accept: ${{ inputs.headers }}" \
-        "https://api.github.com/repos/${{ github.repository }}/statuses/${{ inputs.sha }}" --data-binary @- << EOF
-        {
-            "state": "${{ inputs.state }}",
-            "target_url": "${{ inputs.target_url }}",
-            "description": "${{ inputs.description }}",
-            "context": "${{ inputs.context }}"
-        }
+        curl \
+          -H "Authorization: bearer ${{ inputs.token }}" \
+          -H "Accept: application/vnd.github.v3+json" \
+          "https://api.github.com/repos/${{ github.repository }}/statuses/${{ inputs.sha }}" \
+          --data-binary @- << EOF
+            {
+              "context": "${{ inputs.context }}",
+              "description": "${{ inputs.description }}",
+              "state": "${{ inputs.state }}",
+              "target_url": "${{ inputs.target_url }}"
+            }
         EOF
