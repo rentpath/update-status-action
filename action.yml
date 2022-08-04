@@ -1,5 +1,5 @@
-name: 'Update Github Status'
-description: 'Updates a status via the Github Statuses API'
+name: "Update Github Status"
+description: "Updates a status via the Github Statuses API"
 inputs:
   context:
     description: A string label to differentiate this status from the status of other systems.
@@ -7,6 +7,10 @@ inputs:
   description:
     description: A short description of the status.
     required: false
+  repository:
+    description: The repository to update.
+    required: false
+    default: ${{ github.repository }}
   sha:
     description: The SHA to associate with the status.
     required: true
@@ -14,7 +18,7 @@ inputs:
   state:
     description: The state of the system.
     required: true
-    default: 'pending'
+    default: "pending"
   target_url:
     description: The target URL to associate with this status.
     required: false
@@ -30,9 +34,10 @@ runs:
       shell: bash
       run: |
         curl \
-          -H "Authorization: bearer ${{ inputs.token }}" \
-          -H "Accept: application/vnd.github.v3+json" \
-          "https://api.github.com/repos/${{ github.repository }}/statuses/${{ inputs.sha }}" \
+          --request POST \
+          --header "Authorization: bearer ${{ inputs.token }}" \
+          --header "Accept: application/vnd.github.v3+json" \
+          --url "https://api.github.com/repos/${{ inputs.repository }}/statuses/${{ inputs.sha }}" \
           --data-binary @- << EOF
             {
               "context": "${{ inputs.context }}",
